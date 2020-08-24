@@ -1,0 +1,201 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app" class="widget">
+        <span>
+            <input type="image" src="left.jpg" class="btn" v-on:click="btnPrevMonth"></input>{{this.nameMonth}}
+            2020<input type="image" src="right.jpg" class='btn' v-on:click="btnNextMonth">
+            </input>
+        </span>
+        <table>
+            <thead>
+                <th>MON</th>
+                <th>TUE</th>
+                <th>WED</th>
+                <th>THU</th>
+                <th>FRI</th>
+                <th>SAT</th>
+                <th>SUN</th>
+            </thead>
+            <tbody>
+                <tr v-for="x in 6">
+                    <td v-for="(item, index) in printDay(x)" :class="[index > 4 ? 'weekend' : '']">{{item}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    const YEAR = 2020
+    var app = new Vue({
+        el: '#app',
+        data: {
+            month: {
+                0: 'Январь',
+                1: 'Февраль',
+                2: 'Март',
+                3: 'Апрель',
+                4: 'Май',
+                5: 'Июнь',
+                6: 'Июль',
+                7: 'Август',
+                8: 'Сентябрь',
+                9: 'Октябрь',
+                10: 'Ноябрь',
+                11: 'Декабрь'
+            },
+            currentMonth: 7,
+            days: [],
+            indexFirstDayNextMn: 0
+        },
+        computed: {
+            nameMonth: function () {
+                return this.month[this.currentMonth]
+            }
+        },
+        created: function () {
+            this.createCalendar(this.currentMonth)
+        },
+        methods: {
+            btnPrevMonth() {
+                this.currentMonth = this.currentMonth - 1
+                this.createCalendar(this.currentMonth)
+                return this.currentMonth
+            },
+            btnNextMonth() {
+                this.currentMonth = this.currentMonth + 1
+                this.createCalendar(this.currentMonth)
+                return this.currentMonth
+            },
+            createCalendar(currentMonth) {
+                this.days = []
+                //ищем последний день нынешнего месяца
+                const lastDayCur = this.getLastDayOfMonth(YEAR, currentMonth)
+
+                //ищем последний день прошлого  месяца
+                let tmpCurrentMonth = currentMonth - 1
+                const lastDayPrev = this.getLastDayOfMonth(YEAR, tmpCurrentMonth)
+
+                //ищем день недели текущ. месяца
+                let nameDayOfWeek = this.getFirstDayOfMonth(YEAR, currentMonth)
+
+                //заполняем массив датами прошлого месяца
+                let tmp_nameDayOfWeek = nameDayOfWeek
+                let currentDay = 0
+                if (nameDayOfWeek !== 1) {
+                    for (currentDay; currentDay < nameDayOfWeek - 1; currentDay++) {
+                        this.days[currentDay] = lastDayPrev - tmp_nameDayOfWeek + 2
+                        tmp_nameDayOfWeek--
+                    }
+                }
+
+                //заполняем массив датами текущего месяца
+                let j = 1
+                for (currentDay; j <= lastDayCur; currentDay++) {
+                    this.days[currentDay] = j
+                    j++
+                }
+
+                //заполняем массив датами следующего месяца, запоминаем индекс первого след. месяца
+                j = 1
+                this.indexFirstDayNextMn = currentDay
+                for (currentDay; j < 13; currentDay++) {
+                    this.days[currentDay] = j
+                    j++
+                }
+
+                return this.days
+            },
+            printDay(week) {
+                switch (week) {
+                    case 1:
+                        return this.days.slice(0, 7)
+                        break;
+                    case 2:
+                        return this.days.slice(7, 14)
+                        break;
+                    case 3:
+                        return this.days.slice(14, 21)
+                        break;
+                    case 4:
+                        return this.days.slice(21, 28)
+                        break;
+                    case 5:
+                        return this.days.slice(28, 35)
+                        break;
+                    case 6:
+                        return this.days.slice(35, 42)
+                        break;
+                    default:
+                        break;
+                }
+            },
+            getLastDayOfMonth(year, month) {
+                month++
+                const date = new Date(year, month, 0);
+                return date.getDate();
+            },
+            getFirstDayOfMonth(year, month, day) {
+                const date = new Date(year, month, 1);
+                return date.getDay();
+            },
+        }
+    })
+</script>
+<style>
+    .btn {
+        width: 25px;
+        height: 25px;
+        flex-wrap: nowrap;
+        margin-left: 65px;
+        margin-right: 65px;
+    }
+
+    span {
+        font-size: 13pt;
+        font-family: serif;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .widget {
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        height: 350px;
+        width: 420px;
+        border: solid 1px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: center;
+    }
+
+    table {
+        flex: auto;
+        width: 420px;
+    }
+
+    th {
+        font-size: small;
+        font: 9pt times new roman;
+        border-bottom: 1px solid black;
+    }
+
+    td {
+        padding: 10px;
+        color: darkblue;
+        font: 12pt times new roman;
+    }
+
+    .weekend {
+        background: #F1F8E0;
+    }
+</style>
+
+</html>
